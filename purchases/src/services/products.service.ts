@@ -35,7 +35,7 @@ export class ProductService {
       throw new Error('Another product with same slug already exists');
     }
 
-    return this.prisma.product.create({
+    return await this.prisma.product.create({
       data: {
         title,
         slug,
