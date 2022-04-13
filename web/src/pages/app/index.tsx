@@ -1,29 +1,36 @@
-import { getAccessToken, useUser, withPageAuthRequired } from "@auth0/nextjs-auth0"
-import { GetServerSideProps } from "next"
-import Link from "next/link"
+import { useUser, withPageAuthRequired } from "@auth0/nextjs-auth0";
+import { GetServerSideProps } from "next";
+import Link from "next/link";
+import { ssrGetProducts, useMe } from "../../graphql/generated/page";
+import { withApollo } from "../../lib/withApollo";
 
-export default function Home() {
-  const { user } = useUser()
+function Home({ data }) {
+  const { user } = useUser();
+  const { data: me } = useMe();
   return (
-    <div>
+    <div className="text-violet-500">
       <h1>Hello World!</h1>
 
+      <h1>User</h1>
       <pre>{JSON.stringify(user, null, 2)}</pre>
+      <pre>ok {JSON.stringify(me, null, 2)}</pre>
+
+      {/* <h1>Data</h1>
+      <pre>{JSON.stringify(data.products, null, 2)}</pre> */}
 
       <Link href="/api/auth/logout">Logout</Link>
     </div>
-  )
+  );
 }
 
 export const getServerSideProps: GetServerSideProps = withPageAuthRequired({
-  getServerSideProps: async ({req, res}) => {
-    console.log(getAccessToken(req, res))
+  getServerSideProps: async (ctx) => {
+    // return await getServerPageGetProducts(null, ctx);
     return {
-      props:{}
-    }
-  }
-})
-
+      props: {},
+    };
+  },
+});
 
 // export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
 //   const token = getAccessToken(req, res)
@@ -34,3 +41,5 @@ export const getServerSideProps: GetServerSideProps = withPageAuthRequired({
 //     props:{}
 //   }
 // }
+
+export default withApollo(ssrGetProducts.withPage()(Home));
